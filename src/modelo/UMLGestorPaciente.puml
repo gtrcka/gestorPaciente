@@ -1,0 +1,70 @@
+@startuml
+abstract class Persona
+class Paciente
+class Turno
+class HistoriaClinica
+
+Persona <|-- Paciente
+Paciente "1" o-- "n" Turno
+Paciente "1" *-- "1" HistoriaClinica
+
+Persona <|-- Profesional
+Profesional <|-- Usuario
+Usuario o-- TipoUsuario
+
+class Persona{
+    -String name
+    -String surName
+    -String dni
+    -Integer year
+    -Date dateOfBirth
+    -String address
+    -String profession
+    
+    +toString() String
+    +getName() String
+    +getSurname() String
+    +getDni() String
+    +getYear() Integer
+    +getDateOfBirth() Date
+    +getAddress() String
+    +getprofession() String
+    +setName() void
+    +setSurname() void
+    +setDni() void
+    +setYear() void
+    +setDateOfBirth() void
+    +setAddress() void
+    +setprofession() void
+}
+
+class Paciente{
+    -Turno turno
+    -HistoriaClinica history
+    
+    +getTurno() Turno;
+    +getHistory() HistoriaCLinica
+    +setTurno() void
+    +setHistory() void
+}
+
+class Profesional{
+    -Integer idProfesional
+    -String profesion
+    -String especialidad
+    -HistoriaClinica history    
+    
+}
+
+class Usuario{
+    -Integer idUsuario
+    -String nombreUsuario
+    -String contraseña
+    -Integer idTipoUsuario
+}
+
+class TipoUsuario{
+    -Integer idTipoUsuario
+    -String nombreTipoUsuario
+}
+@enduml
