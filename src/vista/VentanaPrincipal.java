@@ -18,7 +18,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         cajaDomicilioPacientes.setText("");
         cajaCelularPacientes.setText("");
         cajaCorreoPacientes.setText("");
-    }    
+    }  
+    JOPtionPane.showMessageDialog(null, "Hola");
+    
     
     public Date formatedDate(java.util.Date date){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
