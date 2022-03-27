@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
@@ -133,11 +134,11 @@ public class SQLUsuario extends Conexion {
         Connection conexion = getConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        try {            
+        try {
             ps = conexion.prepareStatement("select idUsuario, nombreUsuario, contraseña, id_tipo_usuario from usuario where nombreUsuario=?");
             ps.setString(1, usuario.getNombreUsuario());
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 if (usuario.getContraseña().equals(rs.getString("contraseña"))) {
                     usuario.setIdUsuario(rs.getInt("idUsuario"));
@@ -226,7 +227,7 @@ public class SQLUsuario extends Conexion {
         }
     }
 
-    public boolean buscarPaciente(Paciente paciente) {
+    public boolean buscarPersona(Paciente paciente) {
         Conexion con = new Conexion();
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -289,6 +290,76 @@ public class SQLUsuario extends Conexion {
                 return true;
             } else {
                 JOptionPane.showMessageDialog(null, "No se pudo actualizar el paciente");
+                return false;
+            }
+        } catch (Exception ex) {
+            System.err.println("Error, " + ex);
+            return false;
+        } finally {
+            try {
+                conexion.close();
+            } catch (Exception ex) {
+                System.err.println("Error, " + ex);
+            }
+        }
+    }
+
+    public int buscarPaciente(Paciente paciente) {
+        Conexion con = new Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Connection conexion = con.getConnection();
+        int idPaciente = 0;
+
+        try {
+            ps = conexion.prepareStatement("select idPaciente from Paciente where idPersona=?");
+            ps.setInt(1, paciente.getIdPersona());
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                idPaciente = rs.getInt("idPaciente");
+            } else {
+                JOptionPane.showMessageDialog(null, "No se pudo entcontrar paciente");
+            }
+        } catch (Exception ex) {
+            System.err.println("Error, " + ex);
+        } finally {
+            try {
+                conexion.close();
+            } catch (Exception ex) {
+                System.err.println("Error, " + ex);
+            }
+        }
+        return idPaciente;
+    }
+
+    public Date formatedDate(java.util.Date date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = simpleDateFormat.format(date);
+        Date fechaNacimiento = Date.valueOf(formattedDate);
+
+        return fechaNacimiento;
+    }
+
+    public boolean cargarRegistro(HistoriaClinica hc) {
+        Conexion con = new Conexion();
+        PreparedStatement ps = null;
+        Connection conexion = con.getConnection();
+
+        try {
+            ps = conexion.prepareStatement("insert into historiaclinica (fechaRegistro, registro, medicacion, idPaciente) values(?,?,?,?)");
+            ps.setDate(1, hc.getFechaRegistro());
+            ps.setString(2, hc.getRegistro());
+            ps.setString(3, hc.getMedicacion());
+            ps.setInt(4, hc.getIdPaciente());
+
+            int resultado = ps.executeUpdate();
+
+            if (resultado > 0) {
+                JOptionPane.showMessageDialog(null, "Registro cargado correctamente");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "No se pudo cargar el registro");
                 return false;
             }
         } catch (Exception ex) {

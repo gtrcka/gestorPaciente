@@ -21,14 +21,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         cajaCorreoPacientes.setText("");
     }
 
-    public Date formatedDate(java.util.Date date) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String formattedDate = simpleDateFormat.format(date);
-        Date fechaNacimiento = Date.valueOf(formattedDate);
-
-        return fechaNacimiento;
-    }
-
     public VentanaPrincipal() {
         initComponents();
         setLocationRelativeTo(null);
@@ -426,7 +418,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         Paciente paciente = new Paciente();
         paciente.setDni(cajaDNIPacientes.getText());
 
-        if (sqlPaciente.buscarPaciente(paciente)) {
+        if (sqlPaciente.buscarPersona(paciente)) {
             cajaNombrePacientes.setText(paciente.getNombre());
             cajaApellidoPacientes.setText(paciente.getApellido());
             cajaDNIPacientes.setText(paciente.getDni());
@@ -445,8 +437,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
-        SQLUsuario sqlPaciente = new SQLUsuario();
-        Date fechaNacimiento = formatedDate(jdcFechaNacimientoPacientes.getDate());
+        SQLUsuario modelo = new SQLUsuario();
+        Date fechaNacimiento = modelo.formatedDate(jdcFechaNacimientoPacientes.getDate());
         Paciente paciente = new Paciente();
 
         paciente.setDni(cajaDNIPacientes.getText());
@@ -458,14 +450,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         paciente.setCelular(cajaCelularPacientes.getText());
         paciente.setCorreo(cajaCorreoPacientes.getText());
 
-        sqlPaciente.actualizarPaciente(paciente);
+        modelo.actualizarPaciente(paciente);
     }//GEN-LAST:event_btnActualizarActionPerformed
 
     private void btnCargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarActionPerformed
         SQLUsuario modelo = new SQLUsuario();
         Paciente paciente = null;
         int edad = Integer.parseInt(cajaEdadPacientes.getText());
-        Date fechaNacimiento = formatedDate(jdcFechaNacimientoPacientes.getDate());
+        Date fechaNacimiento = modelo.formatedDate(jdcFechaNacimientoPacientes.getDate());
 
         if (cajaNombrePacientes.getText().equals("") || cajaApellidoPacientes.getText().equals("")  ||cajaDNIPacientes.getText().equals("") || cajaEdadPacientes.getText().equals("") || cajaDomicilioPacientes.getText().equals("") || cajaCelularPacientes.getText().equals("") || cajaCorreoPacientes.getText().equals("")) {
             JOptionPane.showMessageDialog(null, "Falta completar uno o más campos");
@@ -485,34 +477,15 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCargarActionPerformed
 
     private void btnNuevoRegistroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoRegistroActionPerformed
-        HistoriaClinica hc = new HistoriaClinica();
+        SQLUsuario modelo = new SQLUsuario();
+        Paciente p = new Paciente();
+        p.setDni(cajaDNIPacientes.getText());
+        modelo.buscarPersona(p);
+        RegistroHistoriaClinica rhc = new RegistroHistoriaClinica(this, true, p.getIdPaciente());
+        rhc.setVisible(true);
     }//GEN-LAST:event_btnNuevoRegistroActionPerformed
 
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(VentanaPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(VentanaPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(VentanaPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(VentanaPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new VentanaPrincipal().setVisible(true);
