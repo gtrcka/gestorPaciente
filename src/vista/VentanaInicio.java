@@ -18,8 +18,7 @@ import modelo.Usuario;
 public class VentanaInicio extends javax.swing.JFrame {   
     
     public VentanaInicio() {
-        initComponents();
-        setLocationRelativeTo(null);            
+        initComponents();          
     }
 
     @SuppressWarnings("unchecked")
@@ -51,11 +50,6 @@ public class VentanaInicio extends javax.swing.JFrame {
         eContraseña.setText("Contraseña: ");
 
         btnAcceder.setText("Acceder");
-        btnAcceder.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAccederActionPerformed(evt);
-            }
-        });
 
         eRegistrarse.setText("Registrase");
         eRegistrarse.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -89,7 +83,7 @@ public class VentanaInicio extends javax.swing.JFrame {
                         .addGap(32, 32, 32))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelVentanaInicioLayout.createSequentialGroup()
                         .addComponent(eRegistrarse)
-                        .addGap(20, 20, 20))))
+                        .addContainerGap())))
         );
         panelVentanaInicioLayout.setVerticalGroup(
             panelVentanaInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -135,31 +129,6 @@ public class VentanaInicio extends javax.swing.JFrame {
         ventanaRegistrarse.setVisible(true);
     }//GEN-LAST:event_eRegistrarseMouseClicked
 
-    private void btnAccederActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAccederActionPerformed
-        SQLUsuario sqlUsuario = new SQLUsuario();
-        Usuario usuario = new Usuario();
-        
-        String contraseña = new String(cajaContraseña.getPassword());
-        
-        if (cajaUsuario.getText().equals("") || contraseña.equals("")) {
-            JOptionPane.showMessageDialog(null, "Debe completar ambos campos");
-        }
-        else{
-            String nuevaContraseña = CifrarContraseña.md5(contraseña);
-            usuario.setNombreUsuario(cajaUsuario.getText());
-            usuario.setContraseña(nuevaContraseña);
-            
-            if (sqlUsuario.iniciarSesion(usuario)) {
-                dispose();
-                VentanaPrincipal vp = new VentanaPrincipal();
-                vp.setVisible(true);
-            }
-            else{
-                JOptionPane.showMessageDialog(null, "El usuario y contraseña no coinciden");
-            }
-        }
-    }//GEN-LAST:event_btnAccederActionPerformed
-
     public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -170,9 +139,9 @@ public class VentanaInicio extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAcceder;
-    private javax.swing.JPasswordField cajaContraseña;
-    private javax.swing.JTextField cajaUsuario;
+    public javax.swing.JButton btnAcceder;
+    public javax.swing.JPasswordField cajaContraseña;
+    public javax.swing.JTextField cajaUsuario;
     private javax.swing.JLabel eContraseña;
     private javax.swing.JLabel eImagenInicioSesion;
     private javax.swing.JLabel eRegistrarse;

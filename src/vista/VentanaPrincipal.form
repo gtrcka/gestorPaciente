@@ -382,15 +382,17 @@
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" attributes="0">
                                   <Group type="102" attributes="0">
-                                      <Group type="103" groupAlignment="3" attributes="0">
-                                          <Component id="eApellidoPacientes" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          <Component id="cajaNombrePacientes" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          <Component id="cajaApellidoPacientes" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          <Component id="eDNIPacientes" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          <Component id="cajaDNIPacientes" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          <Component id="enombrePacientes" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          <Component id="btnBuscar" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
                                           <Component id="btnLimpiar" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="3" attributes="0">
+                                              <Component id="eApellidoPacientes" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="cajaNombrePacientes" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="cajaApellidoPacientes" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="eDNIPacientes" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="cajaDNIPacientes" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="enombrePacientes" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="btnBuscar" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          </Group>
                                       </Group>
                                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="3" attributes="0">
@@ -590,6 +592,9 @@
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Nuevo Registro"/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnNuevoRegistroActionPerformed"/>
+                      </Events>
                       <AuxValues>
                         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
                       </AuxValues>

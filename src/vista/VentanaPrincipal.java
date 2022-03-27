@@ -1,14 +1,15 @@
-
 package vista;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
 import modelo.Conexion;
+import modelo.HistoriaClinica;
 import modelo.Paciente;
 import modelo.SQLUsuario;
 
 public class VentanaPrincipal extends javax.swing.JFrame {
+
     private void limpiarCajas() {
         cajaNombrePacientes.setText("");
         cajaApellidoPacientes.setText("");
@@ -18,16 +19,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         cajaDomicilioPacientes.setText("");
         cajaCelularPacientes.setText("");
         cajaCorreoPacientes.setText("");
-    }      
-    
-    public Date formatedDate(java.util.Date date){
+    }
+
+    public Date formatedDate(java.util.Date date) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String formattedDate = simpleDateFormat.format(date);
         Date fechaNacimiento = Date.valueOf(formattedDate);
-        
+
         return fechaNacimiento;
     }
-    
+
     public VentanaPrincipal() {
         initComponents();
         setLocationRelativeTo(null);
@@ -273,6 +274,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jLabel1.setText("Historia Clínica");
 
         btnNuevoRegistro.setText("Nuevo Registro");
+        btnNuevoRegistro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNuevoRegistroActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelPacientesLayout = new javax.swing.GroupLayout(panelPacientes);
         panelPacientes.setLayout(panelPacientesLayout);
@@ -341,15 +347,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelPacientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelPacientesLayout.createSequentialGroup()
-                        .addGroup(panelPacientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(eApellidoPacientes)
-                            .addComponent(cajaNombrePacientes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cajaApellidoPacientes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(eDNIPacientes)
-                            .addComponent(cajaDNIPacientes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(enombrePacientes)
-                            .addComponent(btnBuscar)
-                            .addComponent(btnLimpiar))
+                        .addGroup(panelPacientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnLimpiar)
+                            .addGroup(panelPacientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(eApellidoPacientes)
+                                .addComponent(cajaNombrePacientes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cajaApellidoPacientes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(eDNIPacientes)
+                                .addComponent(cajaDNIPacientes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(enombrePacientes)
+                                .addComponent(btnBuscar)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(panelPacientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(eFechaNacimientoPacientes)
@@ -414,37 +421,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnCargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarActionPerformed
-        int edad = Integer.parseInt(cajaEdadPacientes.getText());
-        Date fechaNacimiento = formatedDate(jdcFechaNacimientoPacientes.getDate());
-        SQLUsuario sqlPaciente = new SQLUsuario();
-        Paciente paciente = null;
-        
-        if (cajaNombrePacientes.getText().equals("") || cajaApellidoPacientes.getText().equals("") || cajaDNIPacientes.getText().equals("") || cajaEdadPacientes.getText().equals("") || jdcFechaNacimientoPacientes.getDate().equals("") || cajaDomicilioPacientes.getText().equals("") || cajaCelularPacientes.getText().equals("") || cajaCorreoPacientes.getText().equals("")) {
-            JOptionPane.showMessageDialog(null, "Falta completar uno o más campos");
-        }
-        else{
-            
-            if (sqlPaciente.verificarPersona(cajaDNIPacientes.getText()) == 0) {
-                if (sqlPaciente.comprobarCorreo(cajaCorreoPacientes.getText())){
-                  paciente = new Paciente(cajaNombrePacientes.getText(), cajaApellidoPacientes.getText(), cajaDNIPacientes.getText(), edad, fechaNacimiento, cajaDomicilioPacientes.getText(), cajaCelularPacientes.getText(), cajaCorreoPacientes.getText());
-                sqlPaciente.cargarPaciente(paciente);  
-                }
-                else{
-                    JOptionPane.showMessageDialog(null, "El e-mail ingresado es incorrecto");
-                }
-            }
-            else{
-                JOptionPane.showMessageDialog(null, "El paciente ya existe");
-            }
-        }
-    }//GEN-LAST:event_btnCargarActionPerformed
-
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
         SQLUsuario sqlPaciente = new SQLUsuario();
         Paciente paciente = new Paciente();
         paciente.setDni(cajaDNIPacientes.getText());
-        
+
         if (sqlPaciente.buscarPaciente(paciente)) {
             cajaNombrePacientes.setText(paciente.getNombre());
             cajaApellidoPacientes.setText(paciente.getApellido());
@@ -454,8 +435,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             cajaDomicilioPacientes.setText(paciente.getDomicilio());
             cajaCelularPacientes.setText(paciente.getCelular());
             cajaCorreoPacientes.setText(paciente.getCorreo());
-        }
-        else{
+        } else {
             JOptionPane.showMessageDialog(null, "No existe paciente con el DNI ingresado");
         }
     }//GEN-LAST:event_btnBuscarActionPerformed
@@ -467,8 +447,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
         SQLUsuario sqlPaciente = new SQLUsuario();
         Date fechaNacimiento = formatedDate(jdcFechaNacimientoPacientes.getDate());
-        Paciente paciente = new Paciente();        
-                  
+        Paciente paciente = new Paciente();
+
         paciente.setDni(cajaDNIPacientes.getText());
         paciente.setNombre(cajaNombrePacientes.getText());
         paciente.setApellido(cajaApellidoPacientes.getText());
@@ -477,9 +457,36 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         paciente.setDomicilio(cajaDomicilioPacientes.getText());
         paciente.setCelular(cajaCelularPacientes.getText());
         paciente.setCorreo(cajaCorreoPacientes.getText());
-        
-        sqlPaciente.actualizarPaciente(paciente);        
+
+        sqlPaciente.actualizarPaciente(paciente);
     }//GEN-LAST:event_btnActualizarActionPerformed
+
+    private void btnCargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarActionPerformed
+        SQLUsuario modelo = new SQLUsuario();
+        Paciente paciente = null;
+        int edad = Integer.parseInt(cajaEdadPacientes.getText());
+        Date fechaNacimiento = formatedDate(jdcFechaNacimientoPacientes.getDate());
+
+        if (cajaNombrePacientes.getText().equals("") || cajaApellidoPacientes.getText().equals("")  ||cajaDNIPacientes.getText().equals("") || cajaEdadPacientes.getText().equals("") || cajaDomicilioPacientes.getText().equals("") || cajaCelularPacientes.getText().equals("") || cajaCorreoPacientes.getText().equals("")) {
+            JOptionPane.showMessageDialog(null, "Falta completar uno o más campos");
+        } else {
+
+            if (modelo.verificarPersona(cajaDNIPacientes.getText()) == 0) {
+                if (modelo.comprobarCorreo(cajaCorreoPacientes.getText())) {
+                    paciente = new Paciente(cajaNombrePacientes.getText(), cajaApellidoPacientes.getText(), cajaDNIPacientes.getText(), edad, fechaNacimiento, cajaDomicilioPacientes.getText(), cajaCelularPacientes.getText(), cajaCorreoPacientes.getText());
+                    modelo.cargarPaciente(paciente);
+                } else {
+                    JOptionPane.showMessageDialog(null, "El e-mail ingresado es incorrecto");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "El paciente ya existe");
+            }
+        }
+    }//GEN-LAST:event_btnCargarActionPerformed
+
+    private void btnNuevoRegistroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoRegistroActionPerformed
+        HistoriaClinica hc = new HistoriaClinica();
+    }//GEN-LAST:event_btnNuevoRegistroActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

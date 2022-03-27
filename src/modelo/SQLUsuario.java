@@ -8,7 +8,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
-public class SQLUsuario {
+public class SQLUsuario extends Conexion {
+
+    PreparedStatement ps;
+    ResultSet rs;
 
     public int getIdProfesional() {
         Conexion con = new Conexion();
@@ -127,15 +130,14 @@ public class SQLUsuario {
     }
 
     public boolean iniciarSesion(Usuario usuario) {
-        Conexion con = new Conexion();
+        Connection conexion = getConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        try {
-            Connection conexion = con.getConnection();
+        try {            
             ps = conexion.prepareStatement("select idUsuario, nombreUsuario, contraseña, id_tipo_usuario from usuario where nombreUsuario=?");
             ps.setString(1, usuario.getNombreUsuario());
             rs = ps.executeQuery();
-
+            
             if (rs.next()) {
                 if (usuario.getContraseña().equals(rs.getString("contraseña"))) {
                     usuario.setIdUsuario(rs.getInt("idUsuario"));

@@ -270,6 +270,7 @@ public class VentanaRegistrarse extends javax.swing.JFrame {
                         usuario = new Usuario(cajaUsuario.getText(), nuevaContraseña, 1, cajaProfesion.getText(), matricula, cajaEspecialidad.getText(), cajaNombre.getText(), cajaApellido.getText(), edad, cajaDni.getText());
                         if (sqlUsuario.registrar(usuario)) {
                             limpiarCajas();
+                            dispose();
                         } else {
                             JOptionPane.showMessageDialog(null, "Error al registrar usuario.");
                         }
@@ -299,8 +300,8 @@ public class VentanaRegistrarse extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnRegistrarse;
-    private javax.swing.JButton btnVolver;
+    public javax.swing.JButton btnRegistrarse;
+    public javax.swing.JButton btnVolver;
     private javax.swing.JTextField cajaApellido;
     private javax.swing.JPasswordField cajaConfirmarContraseña;
     private javax.swing.JPasswordField cajaContraseña;
