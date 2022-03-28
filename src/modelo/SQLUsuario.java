@@ -320,7 +320,7 @@ public class SQLUsuario extends Conexion {
                 idPaciente = rs.getInt("idPaciente");
             } else {
                 JOptionPane.showMessageDialog(null, "No se pudo entcontrar paciente");
-            }
+            }            
         } catch (Exception ex) {
             System.err.println("Error, " + ex);
         } finally {
@@ -373,4 +373,6 @@ public class SQLUsuario extends Conexion {
             }
         }
     }
+    
+    
 }

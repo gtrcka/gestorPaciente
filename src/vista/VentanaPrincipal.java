@@ -1,8 +1,13 @@
 package vista;
 
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 import modelo.Conexion;
 import modelo.HistoriaClinica;
 import modelo.Paciente;
@@ -24,6 +29,47 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     public VentanaPrincipal() {
         initComponents();
         setLocationRelativeTo(null);
+    }
+    
+    public boolean cargarHistoriaClinica(Paciente paciente){
+        Conexion con = new Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        DefaultTableModel modeloTabla = new DefaultTableModel();
+        tablaHistoriaClinica.setModel(modeloTabla);
+        Connection conexion = con.getConnection();
+        try {
+            ps = conexion.prepareStatement("select fechaRegistro, registro, medicacion from historiaclinica where idPaciente=?");
+            ps.setInt(1, paciente.getIdPaciente());
+            rs = ps.executeQuery();           
+            ResultSetMetaData rsMD = rs.getMetaData();
+            modeloTabla.addColumn("Fecha");
+            modeloTabla.addColumn("Registro");
+            modeloTabla.addColumn("Medicacion");
+            int anchos[] = {75, 150, 150};
+            int cantColumn = rsMD.getColumnCount();
+            for (int i = 0; i < cantColumn; i++) {
+                tablaHistoriaClinica.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+            }
+            
+            while(rs.next()){
+                Object fila[] = new Object[3];
+                for (int i = 0; i < cantColumn; i++) {
+                    fila[i] = rs.getObject(i+1);
+                }
+                modeloTabla.addRow(fila);
+            }
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Error, " + ex);
+            return false;
+        } finally {
+            try {
+                conexion.close();
+            } catch (Exception ex) {
+                System.err.println("Error, " + ex);
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -75,7 +121,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         btnActualizar = new javax.swing.JToggleButton();
         btnLimpiar = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tablaHistoriaClinica = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         btnNuevoRegistro = new javax.swing.JButton();
         barraMenuPrincipal = new javax.swing.JMenuBar();
@@ -250,17 +296,32 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tablaHistoriaClinica.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {},
-                {},
-                {}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-
+                "Fecha", "Registro", "Medicación"
             }
-        ));
-        jScrollPane2.setViewportView(jTable1);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, true, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(tablaHistoriaClinica);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Historia Clínica");
@@ -370,8 +431,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(btnNuevoRegistro))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(35, 35, 35))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(26, 26, 26))
         );
 
         scrollPanePacientes.setViewportView(panelPacientes);
@@ -427,6 +488,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             cajaDomicilioPacientes.setText(paciente.getDomicilio());
             cajaCelularPacientes.setText(paciente.getCelular());
             cajaCorreoPacientes.setText(paciente.getCorreo());
+            
+            cargarHistoriaClinica(paciente);
         } else {
             JOptionPane.showMessageDialog(null, "No existe paciente con el DNI ingresado");
         }
@@ -533,7 +596,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    public javax.swing.JTable jTable1;
     public com.toedter.calendar.JDateChooser jdcFechaNacimientoPacientes;
     private com.toedter.calendar.JDateChooser jdcNuevoTurno;
     private com.toedter.calendar.JDateChooser jdcTurno;
@@ -544,6 +606,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JScrollPane scrollPaneTurnos;
     private javax.swing.JSeparator separadorTurnos;
     private javax.swing.JTabbedPane tabbedPanePrincipal;
+    public javax.swing.JTable tablaHistoriaClinica;
     private javax.swing.JTable tablaTurnos;
     // End of variables declaration//GEN-END:variables
 }

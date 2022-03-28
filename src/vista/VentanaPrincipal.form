@@ -420,8 +420,8 @@
                                   <Component id="btnNuevoRegistro" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="jScrollPane2" min="-2" pref="126" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
+                              <Component id="jScrollPane2" min="-2" pref="135" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -568,10 +568,14 @@
 
                       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                       <SubComponents>
-                        <Component class="javax.swing.JTable" name="jTable1">
+                        <Component class="javax.swing.JTable" name="tablaHistoriaClinica">
                           <Properties>
                             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                              <Table columnCount="0" rowCount="3"/>
+                              <Table columnCount="3" rowCount="3">
+                                <Column editable="false" title="Fecha" type="java.lang.String"/>
+                                <Column editable="true" title="Registro" type="java.lang.String"/>
+                                <Column editable="true" title="Medicaci&#xf3;n" type="java.lang.String"/>
+                              </Table>
                             </Property>
                           </Properties>
                           <AuxValues>
