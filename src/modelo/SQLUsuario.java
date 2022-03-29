@@ -2,6 +2,7 @@ package modelo;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
@@ -205,15 +206,15 @@ public class SQLUsuario extends Conexion {
         }
     }
 
-    public int verificarPersona(String persona) {
+    public int verificarPersona(String dni) {
         Conexion con = new Conexion();
         PreparedStatement ps = null;
-        ResultSet rs = null;
+        ResultSet rs = null;        
 
         try {
             Connection conexion = con.getConnection();
-            ps = conexion.prepareStatement("select count(idPersona) from persona where nombre=?");
-            ps.setString(1, persona);
+            ps = conexion.prepareStatement("select count(idPersona) from persona where dni=?");
+            ps.setString(1, dni);
             rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -248,7 +249,7 @@ public class SQLUsuario extends Conexion {
                 paciente.setFechaNacimiento(rs.getDate("fechaNacimiento"));
                 paciente.setDomicilio(rs.getString("domicilio"));
                 paciente.setCelular(rs.getString("celular"));
-                paciente.setCorreo(rs.getString("correo"));
+                paciente.setCorreo(rs.getString("correo"));                
 
                 return true;
             } else {
@@ -304,12 +305,11 @@ public class SQLUsuario extends Conexion {
         }
     }
 
-    public int buscarPaciente(Paciente paciente) {
+    public boolean buscarPaciente(Paciente paciente) {
         Conexion con = new Conexion();
         PreparedStatement ps = null;
         ResultSet rs = null;
         Connection conexion = con.getConnection();
-        int idPaciente = 0;
 
         try {
             ps = conexion.prepareStatement("select idPaciente from Paciente where idPersona=?");
@@ -317,12 +317,15 @@ public class SQLUsuario extends Conexion {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                idPaciente = rs.getInt("idPaciente");
+                paciente.setIdPaciente(rs.getInt("idPaciente"));
+                return true;
             } else {
                 JOptionPane.showMessageDialog(null, "No se pudo entcontrar paciente");
+                return false;
             }            
         } catch (Exception ex) {
             System.err.println("Error, " + ex);
+            return false;
         } finally {
             try {
                 conexion.close();
@@ -330,7 +333,6 @@ public class SQLUsuario extends Conexion {
                 System.err.println("Error, " + ex);
             }
         }
-        return idPaciente;
     }
 
     public Date formatedDate(java.util.Date date) {
@@ -349,8 +351,8 @@ public class SQLUsuario extends Conexion {
         try {
             ps = conexion.prepareStatement("insert into historiaclinica (fechaRegistro, registro, medicacion, idPaciente) values(?,?,?,?)");
             ps.setDate(1, hc.getFechaRegistro());
-            ps.setString(2, hc.getRegistro());
-            ps.setString(3, hc.getMedicacion());
+            ps.setString(2, "<html>"+hc.getRegistro()+"</html>");
+            ps.setString(3, "<html>"+hc.getMedicacion()+"</html>");
             ps.setInt(4, hc.getIdPaciente());
 
             int resultado = ps.executeUpdate();
@@ -374,5 +376,57 @@ public class SQLUsuario extends Conexion {
         }
     }
     
+    public int verificarTurno(Timestamp fechaHora) {
+        Conexion con = new Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;        
+
+        try {
+            Connection conexion = con.getConnection();
+            ps = conexion.prepareStatement("select count(idTurno) from turno where fechaHora=?");
+            ps.setTimestamp(1, fechaHora);
+            
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 1;
+
+        } catch (Exception ex) {
+            System.err.println("Error, " + ex);
+            return 1;
+        }
+    }
     
+    public boolean crearTurno(int idPaciente, Timestamp fechaHora){
+        Conexion con = new Conexion();
+        PreparedStatement ps = null;
+        
+        try {
+            ps = conexion.prepareStatement("insert into turno (fechaHora, idPaciente) values(?,?)");
+            ps.setTimestamp(1, fechaHora);
+            ps.setInt(2, idPaciente);    
+
+            int resultado = ps.executeUpdate();
+
+            if (resultado > 0) {
+                JOptionPane.showMessageDialog(null, "Turno agendado con éxito");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "No se pudo agendar el turno");
+                return false;
+            }
+        } catch (Exception ex) {
+            System.err.println("Error, " + ex);
+            return false;
+        } finally {
+            try {
+                conexion.close();
+            } catch (Exception ex) {
+                System.err.println("Error, " + ex);
+            }
+        }
+    }
+
 }

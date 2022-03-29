@@ -5,6 +5,9 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -14,6 +17,8 @@ import modelo.Paciente;
 import modelo.SQLUsuario;
 
 public class VentanaPrincipal extends javax.swing.JFrame {
+
+    boolean pacienteNuevo;
 
     private void limpiarCajas() {
         cajaNombrePacientes.setText("");
@@ -30,18 +35,19 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
     }
-    
-    public boolean cargarHistoriaClinica(Paciente paciente){
+
+    public boolean cargarHistoriaClinica(int idPaciente) {
         Conexion con = new Conexion();
         PreparedStatement ps = null;
         ResultSet rs = null;
         DefaultTableModel modeloTabla = new DefaultTableModel();
         tablaHistoriaClinica.setModel(modeloTabla);
+        tablaHistoriaClinica.setRowHeight(100);
         Connection conexion = con.getConnection();
         try {
             ps = conexion.prepareStatement("select fechaRegistro, registro, medicacion from historiaclinica where idPaciente=?");
-            ps.setInt(1, paciente.getIdPaciente());
-            rs = ps.executeQuery();           
+            ps.setInt(1, idPaciente);
+            rs = ps.executeQuery();
             ResultSetMetaData rsMD = rs.getMetaData();
             modeloTabla.addColumn("Fecha");
             modeloTabla.addColumn("Registro");
@@ -51,11 +57,51 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             for (int i = 0; i < cantColumn; i++) {
                 tablaHistoriaClinica.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
             }
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 Object fila[] = new Object[3];
                 for (int i = 0; i < cantColumn; i++) {
-                    fila[i] = rs.getObject(i+1);
+                    fila[i] = rs.getObject(i + 1);
+                }
+                modeloTabla.addRow(fila);
+            }
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Error, " + ex);
+            return false;
+        } finally {
+            try {
+                conexion.close();
+            } catch (Exception ex) {
+                System.err.println("Error, " + ex);
+            }
+        }
+    }
+    
+    public boolean cargarTurnos(Timestamp fecha){
+        Conexion con = new Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        DefaultTableModel modeloTabla = new DefaultTableModel();
+        tablaTurnos.setModel(modeloTabla);
+        Connection conexion = con.getConnection();
+        try {
+            ps = conexion.prepareStatement("select fechaHora, idPaciente from turno where fechaHora BETWEEN ? AND '2038-01-17 03:14:07.999999'");
+            ps.setTimestamp(1, fecha);
+            rs = ps.executeQuery();
+            ResultSetMetaData rsMD = rs.getMetaData();
+            modeloTabla.addColumn("Fecha y Hora");
+            modeloTabla.addColumn("Paciente");
+            int anchos[] = {150, 150};
+            int cantColumn = rsMD.getColumnCount();
+            for (int i = 0; i < cantColumn; i++) {
+                tablaTurnos.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+            }
+
+            while (rs.next()) {
+                Object fila[] = new Object[cantColumn];
+                for (int i = 0; i < cantColumn; i++) {
+                    fila[i] = rs.getObject(i + 1);
                 }
                 modeloTabla.addRow(fila);
             }
@@ -97,6 +143,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jdcTurno = new com.toedter.calendar.JDateChooser();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaTurnos = new javax.swing.JTable();
+        btnCargarTurnos = new javax.swing.JButton();
         scrollPanePacientes = new javax.swing.JScrollPane();
         panelPacientes = new javax.swing.JPanel();
         eBuscarPaciente = new javax.swing.JLabel();
@@ -135,25 +182,34 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         eDNI.setText("DNI:");
 
+        cajaDNI.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                cajaDNIKeyPressed(evt);
+            }
+        });
+
         eNombre.setText("Nombre:");
 
         eApellido.setText("Apellido:");
 
-        cboHora.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00" }));
+        cboHora.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "----", "08:00:00", "08:30:00", "09:00:00", "09:30:00", "10:00:00", "10:30:00", "11:00:00", "11:30:00", "12:00:00", "12:30:00", "13:00:00" }));
 
         eFecha.setText("Fecha:");
 
         eHora.setText("Hora:");
 
         btnAgendar.setText("Agendar");
+        btnAgendar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgendarActionPerformed(evt);
+            }
+        });
 
         eTurnosDelDia.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        eTurnosDelDia.setText("Turnos del día");
+        eTurnosDelDia.setText("Turnos ");
 
         tablaTurnos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {},
-                {},
                 {},
                 {}
             },
@@ -162,6 +218,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         ));
         jScrollPane1.setViewportView(tablaTurnos);
+
+        btnCargarTurnos.setText("Cargar Turnos");
+        btnCargarTurnos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCargarTurnosActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelTurnosLayout = new javax.swing.GroupLayout(panelTurnos);
         panelTurnos.setLayout(panelTurnosLayout);
@@ -172,7 +235,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     .addGroup(panelTurnosLayout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(panelTurnosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(eTurnosDelDia)
+                            .addGroup(panelTurnosLayout.createSequentialGroup()
+                                .addComponent(eTurnosDelDia)
+                                .addGap(193, 193, 193)
+                                .addComponent(jdcTurno, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(eNuevoTurno)
                             .addGroup(panelTurnosLayout.createSequentialGroup()
                                 .addGap(17, 17, 17)
@@ -204,7 +270,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     .addGroup(panelTurnosLayout.createSequentialGroup()
                         .addGap(32, 32, 32)
                         .addGroup(panelTurnosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jdcTurno, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnCargarTurnos)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 515, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(153, Short.MAX_VALUE))
         );
@@ -234,10 +300,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 .addGroup(panelTurnosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(separadorTurnos, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnAgendar))
-                .addGap(19, 19, 19)
+                .addGap(16, 16, 16)
                 .addGroup(panelTurnosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(eTurnosDelDia)
-                    .addComponent(jdcTurno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jdcTurno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnCargarTurnos))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(180, Short.MAX_VALUE))
@@ -488,10 +555,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             cajaDomicilioPacientes.setText(paciente.getDomicilio());
             cajaCelularPacientes.setText(paciente.getCelular());
             cajaCorreoPacientes.setText(paciente.getCorreo());
-            
-            cargarHistoriaClinica(paciente);
         } else {
             JOptionPane.showMessageDialog(null, "No existe paciente con el DNI ingresado");
+        }
+
+        if (sqlPaciente.buscarPaciente(paciente)) {
+            cargarHistoriaClinica(paciente.getIdPaciente());
+        } else {
+            System.out.println("El paciente no existe como tal");
         }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
@@ -522,7 +593,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         int edad = Integer.parseInt(cajaEdadPacientes.getText());
         Date fechaNacimiento = modelo.formatedDate(jdcFechaNacimientoPacientes.getDate());
 
-        if (cajaNombrePacientes.getText().equals("") || cajaApellidoPacientes.getText().equals("")  ||cajaDNIPacientes.getText().equals("") || cajaEdadPacientes.getText().equals("") || cajaDomicilioPacientes.getText().equals("") || cajaCelularPacientes.getText().equals("") || cajaCorreoPacientes.getText().equals("")) {
+        if (cajaNombrePacientes.getText().equals("") || cajaApellidoPacientes.getText().equals("") || cajaDNIPacientes.getText().equals("") || cajaEdadPacientes.getText().equals("") || cajaDomicilioPacientes.getText().equals("") || cajaCelularPacientes.getText().equals("") || cajaCorreoPacientes.getText().equals("")) {
             JOptionPane.showMessageDialog(null, "Falta completar uno o más campos");
         } else {
 
@@ -544,9 +615,81 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         Paciente p = new Paciente();
         p.setDni(cajaDNIPacientes.getText());
         modelo.buscarPersona(p);
+        modelo.buscarPaciente(p);
         RegistroHistoriaClinica rhc = new RegistroHistoriaClinica(this, true, p.getIdPaciente());
         rhc.setVisible(true);
     }//GEN-LAST:event_btnNuevoRegistroActionPerformed
+
+    private void cajaDNIKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cajaDNIKeyPressed
+        if (evt.getKeyChar() == '\n') {
+            SQLUsuario modelo = new SQLUsuario();
+            Paciente paciente = new Paciente();
+            paciente.setDni(cajaDNI.getText());
+
+            if (modelo.buscarPersona(paciente)) {
+                cajaNombre.setText(paciente.getNombre());
+                cajaApellido.setText(paciente.getApellido());
+                pacienteNuevo = false;
+            } else {
+                JOptionPane.showMessageDialog(null, "Paciente Nuevo");
+                pacienteNuevo = true;
+            }
+        }
+    }//GEN-LAST:event_cajaDNIKeyPressed
+
+    private void btnAgendarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgendarActionPerformed
+        SQLUsuario modelo = new SQLUsuario();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = modelo.formatedDate(jdcNuevoTurno.getDate());
+
+        String fechaTurno = dateFormat.format(date);
+        String horaTurno = cboHora.getSelectedItem().toString();
+
+        Timestamp turno = Timestamp.valueOf(fechaTurno + " " + horaTurno + ".000000000");
+        System.out.println(turno);
+
+        if (pacienteNuevo) {
+            Paciente paciente = null;
+
+            if (cajaNombre.getText().equals("") || cajaApellido.getText().equals("") || cajaDNI.getText().equals("") || cboHora.getSelectedIndex() == 0) {
+                JOptionPane.showMessageDialog(null, "Falta completar uno o más campos");
+            } else {
+                if (modelo.verificarTurno(turno) == 0) {
+                    paciente = new Paciente(cajaNombre.getText(), cajaApellido.getText(), cajaDNIPacientes.getText());
+                    modelo.cargarPaciente(paciente);
+                    modelo.crearTurno(paciente.getIdPaciente(), turno);
+                } else {
+                    JOptionPane.showMessageDialog(null, "El turno no está disponible");
+                }
+            }
+        } else {
+            if (modelo.verificarTurno(turno) == 0) {
+                Paciente paciente = new Paciente();
+                paciente.setDni(cajaDNI.getText());
+                modelo.buscarPersona(paciente);
+                modelo.buscarPaciente(paciente);
+                modelo.crearTurno(paciente.getIdPaciente(), turno);
+            } else {
+                JOptionPane.showMessageDialog(null, "El turno no está disponible");
+            }
+        }
+    }//GEN-LAST:event_btnAgendarActionPerformed
+
+    private void btnCargarTurnosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarTurnosActionPerformed
+        SQLUsuario modelo = new SQLUsuario();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = modelo.formatedDate(jdcTurno.getDate());
+
+        String fechaTurno = dateFormat.format(date);
+
+        Timestamp fecha = Timestamp.valueOf(fechaTurno + " " + "00:00:00.000000000");
+        
+        if (cargarTurnos(fecha)) {
+            
+        }else{
+            JOptionPane.showMessageDialog(null, "No se pudo cargar turnos");
+        }
+    }//GEN-LAST:event_btnCargarTurnosActionPerformed
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -562,6 +705,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnAgendar;
     public javax.swing.JToggleButton btnBuscar;
     public javax.swing.JToggleButton btnCargar;
+    private javax.swing.JButton btnCargarTurnos;
     public javax.swing.JButton btnLimpiar;
     public javax.swing.JButton btnNuevoRegistro;
     private javax.swing.JTextField cajaApellido;
