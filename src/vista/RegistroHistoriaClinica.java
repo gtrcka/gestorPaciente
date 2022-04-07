@@ -6,7 +6,7 @@ import java.time.ZoneId;
 import javax.swing.JOptionPane;
 import modelo.HistoriaClinica;
 import modelo.Paciente;
-import modelo.SQLUsuario;
+import modelo.SQLModelo;
 
 public class RegistroHistoriaClinica extends javax.swing.JDialog {
     private int idPaciente;
@@ -110,7 +110,7 @@ public class RegistroHistoriaClinica extends javax.swing.JDialog {
 
     private void btnGuardarRegistroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarRegistroActionPerformed
         HistoriaClinica hc = null;
-        SQLUsuario modelo = new SQLUsuario();       
+        SQLModelo modelo = new SQLModelo();       
         LocalDateTime date = LocalDateTime.now();        
         Date fechaRegistro = Date.valueOf(date.toLocalDate());
         

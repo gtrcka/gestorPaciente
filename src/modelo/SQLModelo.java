@@ -10,15 +10,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
-public class SQLUsuario extends Conexion {
+public class SQLModelo extends Conexion {
 
-    PreparedStatement ps;
-    ResultSet rs;
+    Conexion con = new Conexion();
+    PreparedStatement ps = null;
+    PreparedStatement ps2 = null;
+    PreparedStatement ps1 = null;
+    ResultSet rs = null;
 
+    /*Método para obtener el idProfessional*/
     public int getIdProfesional() {
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        ResultSet rs = null;
         int idProfesional = 0;
 
         try {
@@ -36,10 +37,8 @@ public class SQLUsuario extends Conexion {
         return idProfesional;
     }
 
+    /*Método para obtener el idPersona*/
     public int getIdPersona() {
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        ResultSet rs = null;
         int idPersona = 0;
 
         try {
@@ -58,13 +57,9 @@ public class SQLUsuario extends Conexion {
     }
 
     public boolean registrar(Usuario usuario) {
-        Conexion con = new Conexion();
-        PreparedStatement ps2 = null;
-        PreparedStatement ps1 = null;
-        PreparedStatement ps = null;
-        Connection conexion = con.getConnection();
 
         try {
+            Connection conexion = con.getConnection();
             ps2 = conexion.prepareStatement("insert into persona (nombre, apellido, dni, edad, correo) values (?,?,?,?,?)");
             ps2.setString(1, usuario.getNombre());
             ps2.setString(2, usuario.getApellido());
@@ -105,9 +100,6 @@ public class SQLUsuario extends Conexion {
     }
 
     public int verificarUsuario(String usuario) {
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        ResultSet rs = null;
         try {
             Connection conexion = con.getConnection();
             ps = conexion.prepareStatement("select count(idUsuario) from usuario where nombreUsuario=?");
@@ -132,9 +124,6 @@ public class SQLUsuario extends Conexion {
     }
 
     public boolean iniciarSesion(Usuario usuario) {
-        Connection conexion = getConnection();
-        PreparedStatement ps = null;
-        ResultSet rs = null;
         try {
             ps = conexion.prepareStatement("select idUsuario, nombreUsuario, contraseña, id_tipo_usuario from usuario where nombreUsuario=?");
             ps.setString(1, usuario.getNombreUsuario());
@@ -158,12 +147,9 @@ public class SQLUsuario extends Conexion {
     }
 
     public boolean cargarPaciente(Paciente paciente) {
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        PreparedStatement ps1 = null;
-        Connection conexion = con.getConnection();
 
         try {
+            Connection conexion = con.getConnection();
             ps = conexion.prepareStatement("insert into persona (nombre, apellido, dni, edad, fechaNacimiento, domicilio, celular, correo) values(?,?,?,?,?,?,?,?)");
             ps.setString(1, paciente.getNombre());
             ps.setString(2, paciente.getApellido());
@@ -207,9 +193,6 @@ public class SQLUsuario extends Conexion {
     }
 
     public int verificarPersona(String dni) {
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        ResultSet rs = null;        
 
         try {
             Connection conexion = con.getConnection();
@@ -228,14 +211,29 @@ public class SQLUsuario extends Conexion {
         }
     }
 
-    public boolean buscarPersona(Paciente paciente) {
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        PreparedStatement ps1 = null;
-        Connection conexion = con.getConnection();
+    public int verificarPaciente(int idPersona) {
 
         try {
+            Connection conexion = con.getConnection();
+            ps = conexion.prepareStatement("select count(idPersona) from paciente where idPersona=?");
+            ps.setInt(1, idPersona);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 1;
+
+        } catch (Exception ex) {
+            System.err.println("Error, " + ex);
+            return 1;
+        }
+    }
+
+    public boolean buscarPersona(Paciente paciente) {
+
+        try {
+            Connection conexion = con.getConnection();
             ps = conexion.prepareStatement("select * from persona where dni=?");
             ps.setString(1, paciente.getDni());
             rs = ps.executeQuery();
@@ -249,7 +247,7 @@ public class SQLUsuario extends Conexion {
                 paciente.setFechaNacimiento(rs.getDate("fechaNacimiento"));
                 paciente.setDomicilio(rs.getString("domicilio"));
                 paciente.setCelular(rs.getString("celular"));
-                paciente.setCorreo(rs.getString("correo"));                
+                paciente.setCorreo(rs.getString("correo"));
 
                 return true;
             } else {
@@ -268,12 +266,10 @@ public class SQLUsuario extends Conexion {
     }
 
     public boolean actualizarPaciente(Paciente paciente) {
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        Connection conexion = con.getConnection();
 
         try {
-            ps = conexion.prepareStatement("update persona set nombre=?, apellido=?, dni=?, edad=?, fechaNacimiento=?, domicilio=?, celular=?, correo=? where dni=?");
+            Connection conexion = con.getConnection();
+            ps = conexion.prepareStatement("update persona set nombre=?, apellido=?, dni=?, edad=?, fechaNacimiento=?,  domicilio=?, celular=?, correo=? where dni=?");
             ps.setString(1, paciente.getNombre());
             ps.setString(2, paciente.getApellido());
             ps.setString(3, paciente.getDni());
@@ -296,22 +292,13 @@ public class SQLUsuario extends Conexion {
         } catch (Exception ex) {
             System.err.println("Error, " + ex);
             return false;
-        } finally {
-            try {
-                conexion.close();
-            } catch (Exception ex) {
-                System.err.println("Error, " + ex);
-            }
         }
     }
 
     public boolean buscarPaciente(Paciente paciente) {
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        Connection conexion = con.getConnection();
 
         try {
+            Connection conexion = con.getConnection();
             ps = conexion.prepareStatement("select idPaciente from Paciente where idPersona=?");
             ps.setInt(1, paciente.getIdPersona());
             rs = ps.executeQuery();
@@ -322,16 +309,10 @@ public class SQLUsuario extends Conexion {
             } else {
                 JOptionPane.showMessageDialog(null, "No se pudo entcontrar paciente");
                 return false;
-            }            
+            }
         } catch (Exception ex) {
             System.err.println("Error, " + ex);
             return false;
-        } finally {
-            try {
-                conexion.close();
-            } catch (Exception ex) {
-                System.err.println("Error, " + ex);
-            }
         }
     }
 
@@ -344,15 +325,13 @@ public class SQLUsuario extends Conexion {
     }
 
     public boolean cargarRegistro(HistoriaClinica hc) {
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        Connection conexion = con.getConnection();
 
         try {
+            Connection conexion = con.getConnection();
             ps = conexion.prepareStatement("insert into historiaclinica (fechaRegistro, registro, medicacion, idPaciente) values(?,?,?,?)");
             ps.setDate(1, hc.getFechaRegistro());
-            ps.setString(2, "<html>"+hc.getRegistro()+"</html>");
-            ps.setString(3, "<html>"+hc.getMedicacion()+"</html>");
+            ps.setString(2, "<html>" + hc.getRegistro() + "</html>");
+            ps.setString(3, "<html>" + hc.getMedicacion() + "</html>");
             ps.setInt(4, hc.getIdPaciente());
 
             int resultado = ps.executeUpdate();
@@ -375,17 +354,14 @@ public class SQLUsuario extends Conexion {
             }
         }
     }
-    
+
     public int verificarTurno(Timestamp fechaHora) {
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        ResultSet rs = null;        
 
         try {
             Connection conexion = con.getConnection();
             ps = conexion.prepareStatement("select count(idTurno) from turno where fechaHora=?");
             ps.setTimestamp(1, fechaHora);
-            
+
             rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -398,15 +374,14 @@ public class SQLUsuario extends Conexion {
             return 1;
         }
     }
-    
-    public boolean crearTurno(int idPaciente, Timestamp fechaHora){
-        Conexion con = new Conexion();
-        PreparedStatement ps = null;
-        
+
+    public boolean crearTurno(int idPaciente, Timestamp fechaHora) {
+
         try {
+            Connection conexion = con.getConnection();
             ps = conexion.prepareStatement("insert into turno (fechaHora, idPaciente) values(?,?)");
             ps.setTimestamp(1, fechaHora);
-            ps.setInt(2, idPaciente);    
+            ps.setInt(2, idPaciente);
 
             int resultado = ps.executeUpdate();
 
@@ -417,6 +392,28 @@ public class SQLUsuario extends Conexion {
                 JOptionPane.showMessageDialog(null, "No se pudo agendar el turno");
                 return false;
             }
+        } catch (Exception ex) {
+            System.err.println("Error, " + ex);
+            return false;
+        } finally {
+            try {
+                conexion.close();
+            } catch (Exception ex) {
+                System.err.println("Error, " + ex);
+            }
+        }
+    }
+
+    public boolean cargarPacientePersona(Paciente paciente) {
+        try {
+            Connection conexion = con.getConnection();
+
+            ps1 = conexion.prepareStatement("insert into paciente (idPersona) values(?)");
+            ps1.setInt(1, paciente.getIdPersona());
+            ps1.executeUpdate();
+            
+            return true;
+
         } catch (Exception ex) {
             System.err.println("Error, " + ex);
             return false;

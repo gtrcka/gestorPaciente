@@ -9,6 +9,10 @@ public class Paciente extends Persona {
     public Paciente() {
     }
 
+    public Paciente(int idPersona) {
+        super(idPersona);
+    }    
+
     public Paciente( String nombre, String apellido, int edad, String dni) {
         super(nombre, apellido, edad, dni);
     } 
@@ -18,7 +22,7 @@ public class Paciente extends Persona {
     }    
 
     public Paciente(String nombre, String apellido, String dni, int edad, Date fechaNacimiento, String domicilio, String celular, String correo) {
-        super(nombre, apellido, edad, dni, fechaNacimiento, domicilio, celular, correo);
+        super(nombre, apellido, edad, dni, fechaNacimiento,  domicilio, celular, correo);
     }
     
     

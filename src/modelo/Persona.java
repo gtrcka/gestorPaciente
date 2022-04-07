@@ -24,6 +24,10 @@ public class Persona {
     public Persona() {
     }
 
+    public Persona(int idPersona) {
+        this.idPersona = idPersona;
+    }   
+
     public Persona(String nombre, String apellido, String dni) {
         this.nombre = nombre;
         this.apellido = apellido;
@@ -35,7 +39,7 @@ public class Persona {
         this.apellido = apellido;
         this.edad = edad;
         this.dni = dni;
-        this.fechaNacimiento = fechaNacimiento;
+        this.fechaNacimiento = fechaNacimiento;   
         this.domicilio = domicilio;
         this.celular = celular;
         this.correo = correo;
@@ -87,7 +91,7 @@ public class Persona {
 
     public void setFechaNacimiento(Date fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
-    }
+    }     
 
     public String getDomicilio() {
         return domicilio;

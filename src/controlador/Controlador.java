@@ -2,24 +2,22 @@ package controlador;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Date;
 import javax.swing.JOptionPane;
 import modelo.CifrarContraseña;
-import modelo.Paciente;
-import modelo.Profesional;
-import modelo.SQLUsuario;
+import modelo.SQLModelo;
 import modelo.Usuario;
 import vista.VentanaInicio;
 import vista.VentanaPrincipal;
-import vista.VentanaRegistrarse;
 
 public class Controlador implements ActionListener {
 
-    private VentanaInicio vi;
-    private Usuario user;
-    private SQLUsuario modelo;
+    private final VentanaInicio vi;
+    private final Usuario user;
+    private final SQLModelo modelo;
+    private String usuario = "UNKNOWN";
+    private String contraseña = "UNKNOWN";
 
-    public Controlador(VentanaInicio vi, Usuario user, SQLUsuario modelo) {
+    public Controlador(VentanaInicio vi, Usuario user, SQLModelo modelo) {
         this.vi = vi;
         this.user = user;
         this.modelo = modelo;
@@ -34,10 +32,12 @@ public class Controlador implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vi.btnAcceder) {
+            if (!vi.cajaUsuario.getText().equals("") || vi.cajaContraseña.getPassword().equals("")) {
+                contraseña = new String(vi.cajaContraseña.getPassword());
+                usuario = vi.cajaUsuario.getText();
+            }
 
-            String contraseña = new String(vi.cajaContraseña.getPassword());
-
-            if (vi.cajaUsuario.getText().equals("") || contraseña.equals("")) {
+            if (usuario.equals("UNKNOWN")  || contraseña.equals("UNKNOWN") ) {
                 JOptionPane.showMessageDialog(null, "Debe completar ambos campos");
             } else {
                 String nuevaContraseña = CifrarContraseña.md5(contraseña);

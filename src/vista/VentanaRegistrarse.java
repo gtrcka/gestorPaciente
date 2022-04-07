@@ -1,14 +1,20 @@
 package vista;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import modelo.CifrarContraseña;
 import modelo.Conexion;
-import modelo.SQLUsuario;
+import modelo.SQLModelo;
 import modelo.Usuario;
+import static vista.VentanaInicio.diseño;
 
 public class VentanaRegistrarse extends javax.swing.JFrame {
 
     public VentanaRegistrarse() {
+        diseño();
         initComponents();
         setLocationRelativeTo(null);
     }
@@ -250,40 +256,43 @@ public class VentanaRegistrarse extends javax.swing.JFrame {
         cajaUsuario.setText("");
     }
     private void btnRegistrarseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarseActionPerformed
-        Conexion con = new Conexion();
+        if (!cajaEdad.getText().equals("") || !cajaMatricula.getText().equals("")) {
+            int edad = Integer.parseInt(cajaEdad.getText());
+            int matricula = Integer.parseInt(cajaMatricula.getText());
+            String contraseña = new String(cajaContraseña.getPassword());
+            String confirmarContraseña = new String(cajaConfirmarContraseña.getPassword());
+            Conexion con = new Conexion();
+            SQLModelo sqlUsuario = new SQLModelo();
+            Usuario usuario = null;
 
-        int edad = Integer.parseInt(cajaEdad.getText());
-        int matricula = Integer.parseInt(cajaMatricula.getText());
-        String contraseña = new String(cajaContraseña.getPassword());
-        String confirmarContraseña = new String(cajaConfirmarContraseña.getPassword());
-
-        SQLUsuario sqlUsuario = new SQLUsuario();
-        Usuario usuario = null;
-
-        if (cajaUsuario.getText().equals("") || contraseña.equals("") || cajaProfesion.getText().equals("") || cajaEspecialidad.getText().equals("") || cajaNombre.getText().equals("") || cajaApellido.getText().equals("") || cajaEdad.equals("") || cajaDni.getText().equals("")) {
-            JOptionPane.showMessageDialog(null, "Falta completar uno o más campos.");
-        } else {
-            if (contraseña.equals(confirmarContraseña)) {
-                if (sqlUsuario.verificarUsuario(cajaUsuario.getText()) == 0) {
-                    if (sqlUsuario.comprobarCorreo(cajaCorreo.getText())) {
-                        String nuevaContraseña = CifrarContraseña.md5(contraseña);
-                        usuario = new Usuario(cajaUsuario.getText(), nuevaContraseña, 1, cajaProfesion.getText(), matricula, cajaEspecialidad.getText(), cajaNombre.getText(), cajaApellido.getText(), edad, cajaDni.getText());
-                        if (sqlUsuario.registrar(usuario)) {
-                            limpiarCajas();
-                            dispose();
+            if (cajaUsuario.getText().equals("") || contraseña.equals("") || cajaProfesion.getText().equals("") || cajaEspecialidad.getText().equals("") || cajaNombre.getText().equals("") || cajaApellido.getText().equals("") || cajaDni.getText().equals("")) {
+                JOptionPane.showMessageDialog(null, "Falta completar uno o más campos.");
+            } else {
+                if (contraseña.equals(confirmarContraseña)) {
+                    if (sqlUsuario.verificarUsuario(cajaUsuario.getText()) == 0) {
+                        if (sqlUsuario.comprobarCorreo(cajaCorreo.getText())) {
+                            String nuevaContraseña = CifrarContraseña.md5(contraseña);
+                            usuario = new Usuario(cajaUsuario.getText(), nuevaContraseña, 1, cajaProfesion.getText(), matricula, cajaEspecialidad.getText(), cajaNombre.getText(), cajaApellido.getText(), edad, cajaDni.getText());
+                            if (sqlUsuario.registrar(usuario)) {
+                                limpiarCajas();
+                                dispose();
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Error al registrar usuario.");
+                            }
                         } else {
-                            JOptionPane.showMessageDialog(null, "Error al registrar usuario.");
+                            JOptionPane.showMessageDialog(null, "El e-mail ingresado es incorrecto");
                         }
                     } else {
-                        JOptionPane.showMessageDialog(null, "El e-mail ingresado es incorrecto");
+                        JOptionPane.showMessageDialog(null, "Ya existe un usuario con ese nombre");
                     }
                 } else {
-                    JOptionPane.showMessageDialog(null, "Ya existe un usuario con ese nombre");
+                    JOptionPane.showMessageDialog(null, "Las contraseñas no coinciden.");
                 }
-            } else {
-                JOptionPane.showMessageDialog(null, "Las contraseñas no coinciden.");
             }
+        } else {
+            JOptionPane.showMessageDialog(null, "Falta completar uno o más campos.");
         }
+
     }//GEN-LAST:event_btnRegistrarseActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
@@ -296,7 +305,7 @@ public class VentanaRegistrarse extends javax.swing.JFrame {
             public void run() {
                 new VentanaRegistrarse().setVisible(true);
             }
-        });
+        });       
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

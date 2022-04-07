@@ -4,21 +4,38 @@
  */
 package vista;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import modelo.CifrarContraseña;
-import modelo.SQLUsuario;
+import modelo.SQLModelo;
 import modelo.Usuario;
 
 /**
  *
  * @author gabi_
  */
-public class VentanaInicio extends javax.swing.JFrame {   
-    
+public class VentanaInicio extends javax.swing.JFrame {
+    public static void diseño(){
+        try {
+            UIManager.setLookAndFeel("com.jtattoo.plaf.mint.MintLookAndFeel");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(VentanaRegistrarse.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            Logger.getLogger(VentanaRegistrarse.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(VentanaRegistrarse.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedLookAndFeelException ex) {
+            Logger.getLogger(VentanaRegistrarse.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     public VentanaInicio() {
-        initComponents();          
+        diseño();
+        initComponents();
     }
 
     @SuppressWarnings("unchecked")
@@ -130,7 +147,7 @@ public class VentanaInicio extends javax.swing.JFrame {
     }//GEN-LAST:event_eRegistrarseMouseClicked
 
     public static void main(String args[]) {
-
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new VentanaInicio().setVisible(true);
